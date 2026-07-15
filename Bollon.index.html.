@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ballon Pop</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    height: 100vh;
+    background: #87ceeb;
+    font-family: Arial, sans-serif;
+}
+
+#game {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    max-width: 500px;
+    margin: auto;
+    overflow: hidden;
+    background: linear-gradient(#87ceeb, #e8faff);
+}
+
+#score {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    z-index: 10;
+}
+
+.balloon {
+    position: absolute;
+    border-radius: 50%;
+    cursor: pointer;
+    animation: floatUp linear forwards;
+}
+
+.balloon::after {
+    content: "";
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    width: 2px;
+    height: 30px;
+    background: #555;
+}
+
+.pop {
+    transform: scale(1.5);
+    opacity: 0;
+    transition: 0.2s;
+}
+
+@keyframes floatUp {
+    from {
+        transform: translateY(110vh);
+    }
+
+    to {
+        transform: translateY(-150px);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<audio id="musik" loop>
+    <source src="musik.mp3" type="audio/mpeg">
+</audio>
+
+<div id="game">
+    <div id="score">Punkte: 0</div>
+</div>
+
+
+<script>
+
+const musik = document.getElementById("musik");
+
+document.addEventListener("click", () => {
+    musik.play();
+}, { once: true });
+
+
+const game = document.getElementById("game");
+const scoreText = document.getElementById("score");
+
+let score = localStorage.getItem("ballonPunkte") || 0;
+scoreText.textContent = "Punkte: " + score;
+
+
+const colors = [
+    "#ff4d4d",
+    "#ffcc00",
+    "#66ff66",
+    "#66ccff",
+    "#cc66ff",
+    "#ff66cc"
+];
+
+
+function createBalloon() {
+
+    const balloon = document.createElement("div");
+    balloon.className = "balloon";
+
+    let size = 50 + Math.random() * 30;
+
+    balloon.style.width = size + "px";
+    balloon.style.height = size * 1.3 + "px";
+
+    balloon.style.background =
+        colors[Math.floor(Math.random() * colors.length)];
+
+    balloon.style.left =
+        Math.random() * (game.clientWidth - size) + "px";
+
+
+    // sehr langsam
+    balloon.style.animationDuration =
+        (18 + Math.random() * 15) + "s";
+
+
+    game.appendChild(balloon);
+
+
+    balloon.onclick = function() {
+
+        score++;
+
+        localStorage.setItem("ballonPunkte", score);
+
+        scoreText.textContent =
+            "Punkte: " + score;
+
+        balloon.classList.add("pop");
+
+
+        setTimeout(() => {
+            balloon.remove();
+        }, 200);
+    };
+
+
+    setTimeout(() => {
+
+        if(balloon.parentNode) {
+            balloon.remove();
+        }
+
+    }, 35000);
+}
+
+
+setInterval(createBalloon, 1200);
+
+
+</script>
+
+</body>
+</html>
